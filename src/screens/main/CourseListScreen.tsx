@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { useFavorites } from '../../hooks';
 import { fetchCourses, setSearchQuery } from '../../redux/coursesSlice';
 import CourseCard from '../../components/CourseCard';
-import { COLORS, SPACING, FONTS } from '../../utils/styles';
+import { COLORS, SPACING, FONTS, SHADOWS } from '../../utils/styles';
 import { filterCoursesByQuery, debounce } from '../../utils/helpers';
 
 type CourseListScreenProps = NativeStackScreenProps<HomeStackParamList, 'CourseList'>;
@@ -50,20 +50,19 @@ const CourseListScreen: React.FC<CourseListScreenProps> = ({ navigation }) => {
   const handleRefresh = () => {
     dispatch(fetchCourses());
   };
-
   const handleCoursePress = (course: Course) => {
-    navigation.navigate('CourseDetail', { courseId: course.id });
+    navigation.navigate('CourseDetail', { course });
   };
-
-  const renderCourseCard = ({ item }: { item: Course }) => (
-    <CourseCard
-      course={item}
-      onPress={() => handleCoursePress(item)}
-      isFavorite={isFavorite(item.id)}
-      onToggleFavorite={() => toggleCourseFavorite(item.id)}
-    />
+  const renderCourseCard = ({ item, index }: { item: Course; index: number }) => (
+    <View style={[styles.cardContainer, index % 2 === 1 && styles.cardContainerRight]}>
+      <CourseCard
+        course={item}
+        onPress={() => handleCoursePress(item)}
+        isFavorite={isFavorite(item.id)}
+        onToggleFavorite={() => toggleCourseFavorite(item.id)}
+      />
+    </View>
   );
-
   const renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.searchContainer}>
@@ -98,13 +97,14 @@ const CourseListScreen: React.FC<CourseListScreenProps> = ({ navigation }) => {
       </Text>
     </View>
   );
-
   return (
     <View style={styles.container}>
       <FlatList
         data={filteredCourses}
         renderItem={renderCourseCard}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyState}
         refreshControl={
@@ -130,6 +130,16 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: SPACING.lg,
   },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+  },
+  cardContainer: {
+    flex: 0.48,
+  },
+  cardContainerRight: {
+    marginLeft: SPACING.sm,
+  },
   header: {
     padding: SPACING.md,
     backgroundColor: COLORS.background,
@@ -148,6 +158,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     marginRight: SPACING.sm,
+    ...SHADOWS.small,
   },
   searchInput: {
     flex: 1,
@@ -161,6 +172,7 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
     justifyContent: 'center',
     alignItems: 'center',
+    ...SHADOWS.small,
   },
   statsContainer: {
     alignItems: 'center',
@@ -168,6 +180,7 @@ const styles = StyleSheet.create({
   statsText: {
     fontSize: FONTS.sizes.sm,
     color: COLORS.textSecondary,
+    fontWeight: '500',
   },
   emptyState: {
     flex: 1,

@@ -8,7 +8,15 @@ export const SCREEN_HEIGHT = height;
 
 // Responsive functions
 export const wp = (percentage: number) => {
-  return (percentage * width) / 100;
+  // For web, limit the width to make it more readable
+  const maxWidth = 600; // Maximum form width on web
+  const calculatedWidth = (percentage * width) / 100;
+  
+  if (width > 768 && calculatedWidth > maxWidth) {
+    return (percentage * maxWidth) / 100;
+  }
+  
+  return calculatedWidth;
 };
 
 export const hp = (percentage: number) => {
@@ -17,6 +25,11 @@ export const hp = (percentage: number) => {
 
 // Font scaling
 export const normalizeFont = (size: number) => {
+  // Better scaling for web
+  if (width > 768) {
+    return size; // Don't scale fonts on larger screens
+  }
+  
   const scale = width / 320;
   const newSize = size * scale;
   
@@ -34,6 +47,8 @@ export const SPACING = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 40,
+  xxxl: 48,
 };
 
 export const BORDER_RADIUS = {
@@ -41,6 +56,17 @@ export const BORDER_RADIUS = {
   md: 8,
   lg: 12,
   xl: 16,
+};
+
+// Layout constants for responsive design
+export const LAYOUT = {
+  maxFormWidth: 400,
+  maxContentWidth: 1200,
+  breakpoints: {
+    mobile: 480,
+    tablet: 768,
+    desktop: 1024,
+  },
 };
 
 export const COLORS = {
@@ -83,6 +109,8 @@ export const SHADOWS = {
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3,
+    // Web compatibility
+    boxShadow: '0 1px 3px rgba(0,0,0,0.22)',
   },
   medium: {
     shadowColor: '#000',
@@ -93,6 +121,8 @@ export const SHADOWS = {
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    // Web compatibility
+    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
   },
   large: {
     shadowColor: '#000',
@@ -103,6 +133,8 @@ export const SHADOWS = {
     shadowOpacity: 0.30,
     shadowRadius: 4.65,
     elevation: 8,
+    // Web compatibility
+    boxShadow: '0 4px 12px rgba(0,0,0,0.30)',
   },
 };
 

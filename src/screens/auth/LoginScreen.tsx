@@ -18,7 +18,7 @@ import { useValidation } from '../../hooks';
 import { loginUser, clearError } from '../../redux/authSlice';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import { COLORS, SPACING, FONTS, wp, hp } from '../../utils/styles';
+import { COLORS, SPACING, FONTS, LAYOUT, SCREEN_WIDTH } from '../../utils/styles';
 
 type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -69,7 +69,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
-
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -80,63 +79,65 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>UOM</Text>
-          </View>
-          <Text style={styles.title}>Course Finder</Text>
-          <Text style={styles.subtitle}>Find and manage your courses easily</Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          <Input
-            label="Email"
-            placeholder="Enter your UOM email"
-            value={formData.email}
-            onChangeText={(text) => handleInputChange('email', text)}
-            error={errors.email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            leftIcon={<Mail stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChangeText={(text) => handleInputChange('password', text)}
-            error={errors.password}
-            isPassword={true}
-            leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Button
-            title="Login"
-            onPress={handleLogin}
-            loading={isLoading}
-            fullWidth
-            style={styles.loginButton}
-          />
-
-          <View style={styles.divider}>
-            <Text style={styles.dividerText}>Don't have an account?</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoPlaceholder}>
+              <Text style={styles.logoText}>UOM</Text>
+            </View>
+            <Text style={styles.title}>Course Finder</Text>
+            <Text style={styles.subtitle}>Find and manage your courses easily</Text>
           </View>
 
-          <Button
-            title="Create Account"
-            onPress={() => navigation.navigate('Register')}
-            variant="outline"
-            fullWidth
-          />
-        </View>
+          <View style={styles.formContainer}>
+            <Input
+              label="Email"
+              placeholder="Enter your UOM email"
+              value={formData.email}
+              onChangeText={(text) => handleInputChange('email', text)}
+              error={errors.email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              leftIcon={<Mail stroke={COLORS.gray} width={20} height={20} />}
+            />
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Demo Credentials:{'\n'}
-            Email: student@uom.ac.lk{'\n'}
-            Password: password123
-          </Text>
+            <Input
+              label="Password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChangeText={(text) => handleInputChange('password', text)}
+              error={errors.password}
+              isPassword={true}
+              leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
+            />
+
+            <Button
+              title="Login"
+              onPress={handleLogin}
+              loading={isLoading}
+              fullWidth
+              style={styles.loginButton}
+            />
+
+            <View style={styles.divider}>
+              <Text style={styles.dividerText}>Don't have an account?</Text>
+            </View>
+
+            <Button
+              title="Create Account"
+              onPress={() => navigation.navigate('Register')}
+              variant="outline"
+              fullWidth
+            />
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Demo Credentials:{'\n'}
+              Email: student@uom.ac.lk{'\n'}
+              Password: password123
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -150,12 +151,18 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xl,
+  },
+  contentContainer: {
+    maxWidth: LAYOUT.maxFormWidth,
+    width: '100%',
+    alignSelf: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    paddingTop: hp(8),
-    paddingBottom: hp(4),
+    paddingBottom: SPACING.xxl,
   },
   logoPlaceholder: {
     width: 80,
@@ -181,10 +188,10 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.md,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    paddingHorizontal: SPACING.md,
   },
   formContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingBottom: SPACING.xxl,
   },
   loginButton: {
     marginTop: SPACING.sm,
@@ -200,7 +207,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: SPACING.lg,
+    paddingTop: SPACING.lg,
   },
   footerText: {
     fontSize: FONTS.sizes.xs,

@@ -91,11 +91,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.xs,
     minHeight: 32,
-  },
-  button_medium: {
+  },  button_medium: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    minHeight: 44,
+    minHeight: 50, // Better height for web
   },
   button_large: {
     paddingHorizontal: SPACING.lg,

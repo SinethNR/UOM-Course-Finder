@@ -1,6 +1,32 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User, AuthCredentials, AuthValidationErrors } from '../types';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+// Storage helpers for cross-platform compatibility
+const setStorageItem = async (key: string, value: string) => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, value);
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+};
+
+const getStorageItem = async (key: string): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    return localStorage.getItem(key);
+  } else {
+    return await SecureStore.getItemAsync(key);
+  }
+};
+
+const deleteStorageItem = async (key: string) => {
+  if (Platform.OS === 'web') {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+};
 
 // Async thunks
 export const loginUser = createAsyncThunk(
@@ -17,9 +43,7 @@ export const loginUser = createAsyncThunk(
       
       if (credentials.email !== 'student@uom.ac.lk' || credentials.password !== 'password123') {
         throw new Error('Invalid email or password');
-      }
-
-      const user: User = {
+      }      const user: User = {
         id: '1',
         email: credentials.email,
         name: 'John Doe',
@@ -27,8 +51,8 @@ export const loginUser = createAsyncThunk(
       };
 
       // Store user data securely
-      await SecureStore.setItemAsync('userToken', 'mock_jwt_token');
-      await SecureStore.setItemAsync('userData', JSON.stringify(user));
+      await setStorageItem('userToken', 'mock_jwt_token');
+      await setStorageItem('userData', JSON.stringify(user));
 
       return user;
     } catch (error: any) {
@@ -47,9 +71,7 @@ export const registerUser = createAsyncThunk(
       // Mock validation
       if (!credentials.email || !credentials.password || !credentials.name) {
         throw new Error('All fields are required');
-      }
-
-      const user: User = {
+      }      const user: User = {
         id: Date.now().toString(),
         email: credentials.email,
         name: credentials.name,
@@ -57,8 +79,8 @@ export const registerUser = createAsyncThunk(
       };
 
       // Store user data securely
-      await SecureStore.setItemAsync('userToken', 'mock_jwt_token');
-      await SecureStore.setItemAsync('userData', JSON.stringify(user));
+      await setStorageItem('userToken', 'mock_jwt_token');
+      await setStorageItem('userData', JSON.stringify(user));
 
       return user;
     } catch (error: any) {
@@ -71,15 +93,23 @@ export const loadStoredUser = createAsyncThunk(
   'auth/loadStoredUser',
   async (_, { rejectWithValue }) => {
     try {
-      const token = await SecureStore.getItemAsync('userToken');
-      const userData = await SecureStore.getItemAsync('userData');
+      console.log('Loading stored user...');
+      const token = await getStorageItem('userToken');
+      const userData = await getStorageItem('userData');
+
+      console.log('Token:', token);
+      console.log('UserData:', userData);
 
       if (!token || !userData) {
+        console.log('No stored user data found');
         throw new Error('No stored user data');
       }
 
-      return JSON.parse(userData) as User;
+      const user = JSON.parse(userData) as User;
+      console.log('Parsed user:', user);
+      return user;
     } catch (error: any) {
+      console.error('Error loading stored user:', error.message);
       return rejectWithValue(error.message);
     }
   }
@@ -89,8 +119,8 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await SecureStore.deleteItemAsync('userToken');
-      await SecureStore.deleteItemAsync('userData');
+      await deleteStorageItem('userToken');
+      await deleteStorageItem('userData');
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

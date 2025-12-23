@@ -5,11 +5,15 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
-import { Heart, Users, Clock, MapPin } from 'react-native-feather';
+import { Heart, Users, Star, Clock } from 'react-native-feather';
 import { Course } from '../types';
 import { COLORS, SPACING, BORDER_RADIUS, FONTS, SHADOWS } from '../utils/styles';
 import { formatSchedule, getEnrollmentStatus, truncateText } from '../utils/helpers';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - SPACING.lg * 3) / 2; // 2 columns with spacing
 
 interface CourseCardProps {
   course: Course;
@@ -18,6 +22,29 @@ interface CourseCardProps {
   onToggleFavorite: () => void;
 }
 
+// Course image placeholder colors
+const getCourseImageStyle = (courseId: string) => {
+  const colorMap: { [key: string]: string } = {
+    '1': '#FF6B6B', // Red for Mobile Development
+    '2': '#4ECDC4', // Teal for Web Development  
+    '3': '#45B7D1', // Blue for Data Structures
+    '4': '#96CEB4', // Green for AI/Neural Networks
+    '5': '#FFEAA7', // Yellow for UI Design
+  };
+  
+  const gradients = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  ];
+  
+  return {
+    backgroundColor: colorMap[courseId] || '#6c5ce7',
+  };
+};
+
 const CourseCard: React.FC<CourseCardProps> = ({
   course,
   onPress,
@@ -25,166 +52,182 @@ const CourseCard: React.FC<CourseCardProps> = ({
   onToggleFavorite,
 }) => {
   const enrollmentStatus = getEnrollmentStatus(course);
-
+  const rating = 4.0 + Math.random() * 1; // Mock rating between 4.0-5.0
+  const weeks = Math.floor(Math.random() * 8) + 8; // 8-16 weeks
   return (
     <TouchableOpacity 
       style={styles.container} 
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.title}>{truncateText(course.title, 25)}</Text>
-          <Text style={styles.instructor}>by {course.instructor}</Text>
+      {/* Course Image */}
+      <View style={styles.imageContainer}>
+        <View 
+          style={[styles.courseImagePlaceholder, getCourseImageStyle(course.id)]}
+        >
+          <Text style={styles.courseImageText}>{course.title.split(' ').map(word => word[0]).join('').substring(0, 3).toUpperCase()}</Text>
         </View>
-        
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={onToggleFavorite}
           activeOpacity={0.7}
         >
           <Heart
-            stroke={isFavorite ? COLORS.error : COLORS.gray}
+            stroke={isFavorite ? COLORS.error : COLORS.white}
             fill={isFavorite ? COLORS.error : 'transparent'}
-            width={24}
-            height={24}
+            width={20}
+            height={20}
           />
         </TouchableOpacity>
-      </View>
-
-      <Text style={styles.description}>
-        {truncateText(course.description, 100)}
-      </Text>
-
-      <View style={styles.infoRow}>
-        <View style={styles.infoItem}>
-          <Users stroke={COLORS.gray} width={16} height={16} />
-          <Text style={styles.infoText}>
-            {course.enrollmentCount}/{course.maxCapacity}
-          </Text>
-        </View>
         
-        <View style={[styles.statusBadge, { backgroundColor: enrollmentStatus.color + '20' }]}>
-          <Text style={[styles.statusText, { color: enrollmentStatus.color }]}>
-            {enrollmentStatus.status}
-          </Text>
+        {/* Status Badge */}
+        <View style={[styles.statusBadge, { backgroundColor: enrollmentStatus.color }]}>
+          <Text style={styles.statusText}>{enrollmentStatus.status}</Text>
         </View>
       </View>
 
-      <View style={styles.infoRow}>
-        <View style={styles.infoItem}>
-          <Clock stroke={COLORS.gray} width={16} height={16} />
-          <Text style={styles.infoText}>{formatSchedule(course)}</Text>
-        </View>
-      </View>
-
-      <View style={styles.footer}>
-        <View style={styles.tagContainer}>
-          {course.tags.slice(0, 3).map((tag, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
+      {/* Course Info */}
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>{truncateText(course.title, 35)}</Text>
+        <Text style={styles.instructor}>{course.instructor}</Text>
         
-        <Text style={styles.credits}>{course.credits} Credits</Text>
+        <Text style={styles.description}>
+          {truncateText(course.description, 80)}
+        </Text>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Users stroke={COLORS.gray} width={14} height={14} />
+            <Text style={styles.statText}>{course.enrollmentCount}/{course.maxCapacity}</Text>
+          </View>
+          
+          <View style={styles.statItem}>
+            <Star stroke={COLORS.warning} fill={COLORS.warning} width={14} height={14} />
+            <Text style={styles.statText}>{rating.toFixed(1)}</Text>
+          </View>
+        </View>
+
+        {/* Duration */}
+        <View style={styles.durationContainer}>
+          <Clock stroke={COLORS.gray} width={14} height={14} />
+          <Text style={styles.durationText}>{weeks} weeks</Text>
+        </View>
+
+        {/* View Details Button */}
+        <TouchableOpacity style={styles.viewDetailsButton} onPress={onPress}>
+          <Text style={styles.viewDetailsText}>View Details</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
+const styles = StyleSheet.create({  container: {
+    width: CARD_WIDTH,
     backgroundColor: COLORS.white,
     borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
-    marginHorizontal: SPACING.md,
-    marginVertical: SPACING.xs,
+    marginBottom: SPACING.md,
+    overflow: 'hidden',
     ...SHADOWS.medium,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: SPACING.sm,
+  imageContainer: {
+    position: 'relative',
+    height: 150,
   },
-  headerLeft: {
-    flex: 1,
-    marginRight: SPACING.sm,
+  courseImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  title: {
-    fontSize: FONTS.sizes.lg,
+  courseImageText: {
+    fontSize: FONTS.sizes.xxl,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: SPACING.xs / 2,
-  },
-  instructor: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
+    color: COLORS.white,
+    textAlign: 'center',
   },
   favoriteButton: {
-    padding: SPACING.xs,
-  },
-  description: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    marginBottom: SPACING.sm,
-  },
-  infoRow: {
-    flexDirection: 'row',
+    position: 'absolute',
+    top: SPACING.sm,
+    right: SPACING.sm,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.xs,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  infoText: {
-    fontSize: FONTS.sizes.xs,
-    color: COLORS.gray,
-    marginLeft: SPACING.xs,
-    flex: 1,
   },
   statusBadge: {
+    position: 'absolute',
+    bottom: SPACING.sm,
+    left: SPACING.sm,
     paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs / 2,
+    paddingVertical: 4,
     borderRadius: BORDER_RADIUS.sm,
   },
   statusText: {
     fontSize: FONTS.sizes.xs,
     fontWeight: '600',
+    color: COLORS.white,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: SPACING.sm,
+  contentContainer: {
+    padding: SPACING.md,
   },
-  tagContainer: {
-    flexDirection: 'row',
-    flex: 1,
-    flexWrap: 'wrap',
+  title: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 4,
+    lineHeight: 20,
   },
-  tag: {
-    backgroundColor: COLORS.uomPrimary + '15',
-    paddingHorizontal: SPACING.xs,
-    paddingVertical: SPACING.xs / 2,
-    borderRadius: BORDER_RADIUS.sm,
-    marginRight: SPACING.xs / 2,
-    marginBottom: SPACING.xs / 2,
+  instructor: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
   },
-  tagText: {
+  description: {
     fontSize: FONTS.sizes.xs,
-    color: COLORS.uomPrimary,
+    color: COLORS.textSecondary,
+    lineHeight: 16,
+    marginBottom: SPACING.sm,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+  },
+  statText: {
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.gray,
+    marginLeft: 4,
     fontWeight: '500',
   },
-  credits: {
+  durationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  durationText: {
+    fontSize: FONTS.sizes.xs,
+    color: COLORS.gray,
+    marginLeft: 4,
+  },
+  viewDetailsButton: {
+    backgroundColor: COLORS.uomPrimary,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  viewDetailsText: {
     fontSize: FONTS.sizes.sm,
     fontWeight: '600',
-    color: COLORS.uomSecondary,
+    color: COLORS.white,
   },
 });
 

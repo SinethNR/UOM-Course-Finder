@@ -60,7 +60,7 @@ export type AuthStackParamList = {
 
 export type HomeStackParamList = {
   CourseList: undefined;
-  CourseDetail: { courseId: string };
+  CourseDetail: { course: Course };
 };
 
 // API Response types

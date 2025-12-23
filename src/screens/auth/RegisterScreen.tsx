@@ -16,7 +16,7 @@ import { useValidation } from '../../hooks';
 import { registerUser, clearError } from '../../redux/authSlice';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import { COLORS, SPACING, FONTS, hp } from '../../utils/styles';
+import { COLORS, SPACING, FONTS, LAYOUT } from '../../utils/styles';
 
 type RegisterScreenProps = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -81,7 +81,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
-
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
@@ -92,72 +91,74 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join UOM Course Finder today</Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          <Input
-            label="Full Name"
-            placeholder="Enter your full name"
-            value={formData.name}
-            onChangeText={(text) => handleInputChange('name', text)}
-            error={errors.name}
-            autoCapitalize="words"
-            leftIcon={<User stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Input
-            label="Email"
-            placeholder="Enter your UOM email"
-            value={formData.email}
-            onChangeText={(text) => handleInputChange('email', text)}
-            error={errors.email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            leftIcon={<Mail stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChangeText={(text) => handleInputChange('password', text)}
-            error={errors.password}
-            isPassword={true}
-            leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Input
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChangeText={(text) => handleInputChange('confirmPassword', text)}
-            error={errors.confirmPassword}
-            isPassword={true}
-            leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
-          />
-
-          <Button
-            title="Create Account"
-            onPress={handleRegister}
-            loading={isLoading}
-            fullWidth
-            style={styles.registerButton}
-          />
-
-          <View style={styles.divider}>
-            <Text style={styles.dividerText}>Already have an account?</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join UOM Course Finder today</Text>
           </View>
 
-          <Button
-            title="Back to Login"
-            onPress={() => navigation.goBack()}
-            variant="outline"
-            fullWidth
-          />
+          <View style={styles.formContainer}>
+            <Input
+              label="Full Name"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChangeText={(text) => handleInputChange('name', text)}
+              error={errors.name}
+              autoCapitalize="words"
+              leftIcon={<User stroke={COLORS.gray} width={20} height={20} />}
+            />
+
+            <Input
+              label="Email"
+              placeholder="Enter your UOM email"
+              value={formData.email}
+              onChangeText={(text) => handleInputChange('email', text)}
+              error={errors.email}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              leftIcon={<Mail stroke={COLORS.gray} width={20} height={20} />}
+            />
+
+            <Input
+              label="Password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChangeText={(text) => handleInputChange('password', text)}
+              error={errors.password}
+              isPassword={true}
+              leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
+            />
+
+            <Input
+              label="Confirm Password"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChangeText={(text) => handleInputChange('confirmPassword', text)}
+              error={errors.confirmPassword}
+              isPassword={true}
+              leftIcon={<Lock stroke={COLORS.gray} width={20} height={20} />}
+            />
+
+            <Button
+              title="Create Account"
+              onPress={handleRegister}
+              loading={isLoading}
+              fullWidth
+              style={styles.registerButton}
+            />
+
+            <View style={styles.divider}>
+              <Text style={styles.dividerText}>Already have an account?</Text>
+            </View>
+
+            <Button
+              title="Back to Login"
+              onPress={() => navigation.goBack()}
+              variant="outline"
+              fullWidth
+            />
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -171,12 +172,18 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xl,
+  },
+  contentContainer: {
+    maxWidth: LAYOUT.maxFormWidth,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     alignItems: 'center',
-    paddingTop: hp(6),
-    paddingBottom: hp(4),
+    paddingBottom: SPACING.xxl,
   },
   title: {
     fontSize: FONTS.sizes.xxxl,
@@ -188,9 +195,10 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.md,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    paddingHorizontal: SPACING.md,
   },
   formContainer: {
-    flex: 1,
+    paddingBottom: SPACING.xl,
   },
   registerButton: {
     marginTop: SPACING.sm,

@@ -134,13 +134,13 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
     backgroundColor: COLORS.white,
     paddingHorizontal: SPACING.sm,
-  },
-  input: {
+    minHeight: 50, // Better height for web
+  },  input: {
     flex: 1,
     fontSize: FONTS.sizes.md,
     color: COLORS.text,
     paddingVertical: SPACING.sm,
-    minHeight: 44,
+    paddingHorizontal: SPACING.xs,
   },
   iconContainer: {
     padding: SPACING.xs,

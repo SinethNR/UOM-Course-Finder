@@ -1,180 +1,315 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
+  StyleSheet,
+  Platform,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Heart, Users, Clock, MapPin, Calendar, Star } from 'react-native-feather';
-import { HomeStackParamList, Course } from '../../types';
-import { useAppSelector } from '../../hooks/redux';
-import { useFavorites } from '../../hooks';
-import Button from '../../components/Button';
-import { COLORS, SPACING, FONTS, BORDER_RADIUS, SHADOWS } from '../../utils/styles';
-import { formatTime, getEnrollmentStatus } from '../../utils/helpers';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { HomeStackParamList } from '../../types';
+import { COLORS, SPACING, FONTS, BORDER_RADIUS } from '../../utils/styles';
+import {
+  BookOpen,
+  Clock,
+  Users,
+  Download,
+  Play,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Calendar,
+  Award,
+  User,
+  Link,
+  CheckCircle,
+  Circle,
+} from 'react-native-feather';
 
-type CourseDetailScreenProps = NativeStackScreenProps<HomeStackParamList, 'CourseDetail'>;
+type CourseDetailRouteProp = RouteProp<HomeStackParamList, 'CourseDetail'>;
 
-const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
-  const { courseId } = route.params;
-  const { courses } = useAppSelector(state => state.courses);
-  const { isFavorite, toggleCourseFavorite } = useFavorites();
+interface Section {
+  id: string;
+  title: string;
+  items: SectionItem[];
+  isExpanded?: boolean;
+}
 
-  // Find the course by ID
-  const course = courses.find(c => c.id === courseId);
+interface SectionItem {
+  id: string;
+  title: string;
+  type: 'video' | 'document' | 'quiz' | 'assignment' | 'link' | 'announcement';
+  duration?: string;
+  dueDate?: string;
+  size?: string;
+  isCompleted?: boolean;
+  description?: string;
+}
 
-  if (!course) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Course not found</Text>
-      </View>
-    );
-  }
+const CourseDetailScreen: React.FC = () => {
+  const route = useRoute<CourseDetailRouteProp>();
+  const { course } = route.params || {};
+  
+  // Fallback course data if undefined
+  const fallbackCourse = {
+    id: '1',
+    title: 'Multimedia Technologies',
+    code: 'B22-S1-IN1611',
+    description: 'Introduction to multimedia technologies and applications',
+    instructor: 'Dr. John Smith',
+    department: 'Computer Science',
+    credits: 3,
+    semester: 'Spring',
+    year: 2024,
+    enrollmentCount: 45,
+    maxCapacity: 50,
+    tags: ['Technology', 'Multimedia'],
+    schedule: []
+  };
+  
+  const courseData = course || fallbackCourse;
+  
+  const [expandedSections, setExpandedSections] = useState<string[]>(['general', 'week1']);
 
-  const enrollmentStatus = getEnrollmentStatus(course);
-  const canEnroll = enrollmentStatus.status !== 'Full';
-
-  const handleEnroll = () => {
-    Alert.alert(
-      'Enroll in Course',
-      `Are you sure you want to enroll in ${course.title}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Enroll', 
-          onPress: () => Alert.alert('Success', 'You have been enrolled in the course!') 
+  const courseSections: Section[] = [
+    {
+      id: 'general',
+      title: 'General',
+      isExpanded: true,
+      items: [
+        {
+          id: 'final-grades',
+          title: 'Final Grades',
+          type: 'document',
+          size: '171.8 KB',
+          description: 'Final examination grades and course completion status',
         },
-      ]
+        {
+          id: 'announcements',
+          title: 'Announcements',
+          type: 'announcement',
+          description: 'Course announcements and important updates',
+        },
+        {
+          id: 'lecture-zoom',
+          title: 'Lecture Zoom Link',
+          type: 'link',
+          description: 'Join live lectures via Zoom',
+        },
+        {
+          id: 'eligibility-list',
+          title: 'Eligibility List for the final Exam',
+          type: 'document',
+          size: '216.7 KB',
+          description: 'Students eligible for final examination',
+        },
+      ],
+    },
+    {
+      id: 'week1',
+      title: '31 July - 6 August',
+      isExpanded: true,
+      items: [
+        {
+          id: 'lecture1',
+          title: 'Lecture 1: Introduction and Multimedia Data Representations',
+          type: 'video',
+          duration: '45 min',
+          size: '295.4 KB',
+          isCompleted: true,
+          description: 'Overview of multimedia systems and data representation formats',
+        },
+      ],
+    },
+    {
+      id: 'week2',
+      title: '7 August - 13 August',
+      items: [
+        {
+          id: 'lecture2',
+          title: 'Lecture 2: Image Processing Fundamentals',
+          type: 'video',
+          duration: '50 min',
+          size: '412.3 KB',
+          isCompleted: false,
+          description: 'Basic concepts of digital image processing',
+        },
+        {
+          id: 'assignment1',
+          title: 'Assignment 1: Image Analysis',
+          type: 'assignment',
+          dueDate: 'Due: Aug 20, 2024',
+          description: 'Analyze and process digital images using given tools',
+        },
+      ],
+    },
+    {
+      id: 'week3',
+      title: '14 August - 20 August',
+      items: [
+        {
+          id: 'lecture3',
+          title: 'Lecture 3: Audio and Video Compression',
+          type: 'video',
+          duration: '55 min',
+          size: '523.7 KB',
+          description: 'Compression techniques for multimedia content',
+        },
+        {
+          id: 'quiz1',
+          title: 'Quiz 1: Multimedia Basics',
+          type: 'quiz',
+          dueDate: 'Due: Aug 25, 2024',
+          description: 'Assessment of basic multimedia concepts',
+        },
+      ],
+    },
+  ];
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
     );
   };
 
-  const handleToggleFavorite = () => {
-    toggleCourseFavorite(course.id);
+  const getItemIcon = (type: string) => {
+    switch (type) {
+      case 'video':
+        return <Play stroke={COLORS.uomPrimary} fill={COLORS.uomPrimary} width={18} height={18} />;
+      case 'document':
+        return <FileText stroke={COLORS.primary} width={18} height={18} />;
+      case 'quiz':
+        return <Award stroke={COLORS.warning} width={18} height={18} />;
+      case 'assignment':
+        return <BookOpen stroke={COLORS.error} width={18} height={18} />;
+      case 'link':
+        return <Link stroke={COLORS.uomAccent} width={18} height={18} />;
+      case 'announcement':
+        return <FileText stroke={COLORS.uomSecondary} width={18} height={18} />;
+      default:
+        return <FileText stroke={COLORS.gray} width={18} height={18} />;
+    }
+  };
+
+  const getItemTypeColor = (type: string) => {
+    switch (type) {
+      case 'video':
+        return COLORS.uomPrimary;
+      case 'document':
+        return COLORS.primary;
+      case 'quiz':
+        return COLORS.warning;
+      case 'assignment':
+        return COLORS.error;
+      case 'link':
+        return COLORS.uomAccent;
+      case 'announcement':
+        return COLORS.uomSecondary;
+      default:
+        return COLORS.gray;
+    }
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>{course.title}</Text>
-          <TouchableOpacity
-            style={styles.favoriteButton}
-            onPress={handleToggleFavorite}
-            activeOpacity={0.7}
-          >
-            <Heart
-              stroke={isFavorite(course.id) ? COLORS.error : COLORS.gray}
-              fill={isFavorite(course.id) ? COLORS.error : 'transparent'}
-              width={28}
-              height={28}
-            />
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      {/* Course Header - Moodle Style */}
+      <View style={styles.courseHeader}>
+        <Text style={styles.courseCode}>{courseData.code || 'B22-S1-IN1611'}</Text>
+        <Text style={styles.courseTitle}>{courseData.title}</Text>
         
-        <Text style={styles.instructor}>Instructor: {course.instructor}</Text>
-        <Text style={styles.department}>{course.department}</Text>
-      </View>
-
-      <View style={styles.quickInfo}>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.credits}</Text>
-          <Text style={styles.infoCardLabel}>Credits</Text>
-        </View>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.semester}</Text>
-          <Text style={styles.infoCardLabel}>Semester</Text>
-        </View>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.year}</Text>
-          <Text style={styles.infoCardLabel}>Year</Text>
+        {/* Course Navigation Breadcrumb */}
+        <View style={styles.breadcrumb}>
+          <Text style={styles.breadcrumbText}>Course</Text>
+          <Text style={styles.breadcrumbSeparator}>•</Text>
+          <Text style={styles.breadcrumbText}>Participants</Text>
+          <Text style={styles.breadcrumbSeparator}>•</Text>
+          <Text style={styles.breadcrumbText}>Grades</Text>
+          <Text style={styles.breadcrumbSeparator}>•</Text>
+          <Text style={styles.breadcrumbText}>Competencies</Text>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Enrollment Status</Text>
-        <View style={styles.enrollmentContainer}>
-          <View style={styles.enrollmentInfo}>
-            <Users stroke={COLORS.gray} width={20} height={20} />
-            <Text style={styles.enrollmentText}>
-              {course.enrollmentCount} of {course.maxCapacity} students enrolled
-            </Text>
-          </View>
-          <View style={[styles.statusBadge, { backgroundColor: enrollmentStatus.color + '20' }]}>
-            <Text style={[styles.statusText, { color: enrollmentStatus.color }]}>
-              {enrollmentStatus.status}
-            </Text>
-          </View>
-        </View>
-        
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill, 
-                { 
-                  width: `${(course.enrollmentCount / course.maxCapacity) * 100}%`,
-                  backgroundColor: enrollmentStatus.color 
-                }
-              ]} 
-            />
-          </View>
-        </View>
-      </View>
+      {/* Course Content */}
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.contentContainer}>
+          {courseSections.map((section) => {
+            const isExpanded = expandedSections.includes(section.id);
+            
+            return (
+              <View key={section.id} style={styles.sectionContainer}>
+                {/* Section Header */}
+                <TouchableOpacity
+                  style={styles.sectionHeader}
+                  onPress={() => toggleSection(section.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.sectionTitleContainer}>
+                    {isExpanded ? (
+                      <ChevronDown stroke={COLORS.uomPrimary} width={20} height={20} />
+                    ) : (
+                      <ChevronRight stroke={COLORS.gray} width={20} height={20} />
+                    )}
+                    <Text style={styles.sectionTitle}>{section.title}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.collapseAllButton}>
+                    <Text style={styles.collapseAllText}>Collapse all</Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{course.description}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Schedule</Text>
-        {course.schedule.map((schedule, index) => (
-          <View key={index} style={styles.scheduleItem}>
-            <View style={styles.scheduleHeader}>
-              <Calendar stroke={COLORS.uomPrimary} width={20} height={20} />
-              <Text style={styles.scheduleDay}>{schedule.day}</Text>
-            </View>
-            <View style={styles.scheduleDetails}>
-              <View style={styles.scheduleTime}>
-                <Clock stroke={COLORS.gray} width={16} height={16} />
-                <Text style={styles.scheduleText}>
-                  {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
-                </Text>
+                {/* Section Content */}
+                {isExpanded && (
+                  <View style={styles.sectionContent}>
+                    {section.items.map((item) => (
+                      <TouchableOpacity key={item.id} style={styles.sectionItem}>
+                        <View style={styles.itemLeft}>
+                          <View style={[styles.itemIconContainer]}>
+                            {getItemIcon(item.type)}
+                          </View>
+                          <View style={styles.itemInfo}>
+                            <Text style={styles.itemTitle}>{item.title}</Text>
+                            {item.description && (
+                              <Text style={styles.itemDescription}>{item.description}</Text>
+                            )}
+                            <View style={styles.itemMeta}>
+                              {item.size && (
+                                <Text style={styles.itemMetaText}>{item.size}</Text>
+                              )}
+                              {item.duration && (
+                                <Text style={styles.itemMetaText}>• {item.duration}</Text>
+                              )}
+                              {item.dueDate && (
+                                <Text style={[styles.itemMetaText, styles.dueDate]}>• {item.dueDate}</Text>
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                        <View style={styles.itemActions}>
+                          {item.isCompleted !== undefined && (
+                            <View style={styles.completionStatus}>
+                              {item.isCompleted ? (
+                                <CheckCircle stroke={COLORS.success} fill={COLORS.success} width={16} height={16} />
+                              ) : (
+                                <Circle stroke={COLORS.gray} width={16} height={16} />
+                              )}
+                            </View>
+                          )}
+                          <TouchableOpacity style={styles.markDoneButton}>
+                            <Text style={styles.markDoneText}>Mark as done</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
-              <View style={styles.scheduleLocation}>
-                <MapPin stroke={COLORS.gray} width={16} height={16} />
-                <Text style={styles.scheduleText}>{schedule.location}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Course Tags</Text>
-        <View style={styles.tagsContainer}>
-          {course.tags.map((tag, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
-      </View>
-
-      <View style={styles.actionContainer}>
-        <Button
-          title={canEnroll ? "Enroll Now" : "Course Full"}
-          onPress={handleEnroll}
-          disabled={!canEnroll}
-          fullWidth
-          variant={canEnroll ? "primary" : "outline"}
-          style={styles.enrollButton}
-        />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -183,185 +318,187 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.background,
-  },
-  errorText: {
-    fontSize: FONTS.sizes.lg,
-    color: COLORS.error,
-  },
-  header: {
+  courseHeader: {
     backgroundColor: COLORS.white,
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
-    ...SHADOWS.small,
+    padding: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      default: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      },
+    }),
   },
-  titleContainer: {
+  courseCode: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    fontFamily: FONTS.bold,
+  },
+  courseTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginTop: SPACING.xs,
+    fontFamily: FONTS.bold,
+  },
+  breadcrumb: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: SPACING.md,
+    flexWrap: 'wrap',
+  },
+  breadcrumbText: {
+    fontSize: 13,
+    color: COLORS.uomPrimary,
+    fontFamily: FONTS.regular,
+  },
+  breadcrumbSeparator: {
+    fontSize: 13,
+    color: COLORS.gray,
+    marginHorizontal: SPACING.xs,
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: SPACING.md,
+  },
+  sectionContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+      default: {
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+      },
+    }),
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.md,
+    backgroundColor: COLORS.extraLightGray,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    flex: 1,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    fontFamily: FONTS.bold,
+  },
+  collapseAllButton: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+  },
+  collapseAllText: {
+    fontSize: 12,
+    color: COLORS.uomPrimary,
+    fontFamily: FONTS.regular,
+  },
+  sectionContent: {
+    paddingBottom: SPACING.xs,
+  },
+  sectionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: SPACING.sm,
-  },
-  title: {
-    flex: 1,
-    fontSize: FONTS.sizes.xxl,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginRight: SPACING.sm,
-  },
-  favoriteButton: {
-    padding: SPACING.xs,
-  },
-  instructor: {
-    fontSize: FONTS.sizes.md,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
-  },
-  department: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.uomPrimary,
-    fontWeight: '600',
-  },
-  quickInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: COLORS.white,
-    marginHorizontal: SPACING.md,
-    marginBottom: SPACING.md,
-    borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
-    ...SHADOWS.small,
-  },
-  infoCard: {
-    alignItems: 'center',
-  },
-  infoCardValue: {
-    fontSize: FONTS.sizes.xl,
-    fontWeight: 'bold',
-    color: COLORS.uomPrimary,
-    marginBottom: SPACING.xs / 2,
-  },
-  infoCardLabel: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
-  },
-  section: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: SPACING.md,
-    marginBottom: SPACING.md,
-    padding: SPACING.lg,
-    borderRadius: BORDER_RADIUS.lg,
-    ...SHADOWS.small,
-  },
-  sectionTitle: {
-    fontSize: FONTS.sizes.lg,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: SPACING.md,
-  },
-  enrollmentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  enrollmentInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  enrollmentText: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
-    marginLeft: SPACING.sm,
-  },
-  statusBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    borderRadius: BORDER_RADIUS.sm,
-  },
-  statusText: {
-    fontSize: FONTS.sizes.sm,
-    fontWeight: '600',
-  },
-  progressContainer: {
-    marginTop: SPACING.sm,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  description: {
-    fontSize: FONTS.sizes.md,
-    color: COLORS.text,
-    lineHeight: 24,
-  },
-  scheduleItem: {
-    marginBottom: SPACING.md,
-    paddingBottom: SPACING.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.extraLightGray,
   },
-  scheduleHeader: {
+  itemLeft: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: SPACING.sm,
+    flex: 1,
+  },
+  itemIconContainer: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  itemInfo: {
+    flex: 1,
+    gap: SPACING.xs / 2,
+  },
+  itemTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.uomPrimary,
+    lineHeight: 18,
+    fontFamily: FONTS.medium,
+  },
+  itemDescription: {
+    fontSize: 13,
+    color: COLORS.gray,
+    lineHeight: 16,
+    fontFamily: FONTS.regular,
+  },
+  itemMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  scheduleDay: {
-    fontSize: FONTS.sizes.md,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginLeft: SPACING.sm,
-  },
-  scheduleDetails: {
-    marginLeft: SPACING.lg + SPACING.sm,
-  },
-  scheduleTime: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  scheduleLocation: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  scheduleText: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
-    marginLeft: SPACING.sm,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: SPACING.xs,
   },
-  tag: {
-    backgroundColor: COLORS.uomPrimary + '15',
+  itemMetaText: {
+    fontSize: 12,
+    color: COLORS.gray,
+    fontFamily: FONTS.regular,
+  },
+  dueDate: {
+    color: COLORS.error,
+    fontWeight: '500',
+  },
+  itemActions: {
+    alignItems: 'flex-end',
+    gap: SPACING.sm,
+  },
+  completionStatus: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markDoneButton: {
+    backgroundColor: COLORS.extraLightGray,
     paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.xs,
     borderRadius: BORDER_RADIUS.sm,
-    marginRight: SPACING.sm,
-    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
   },
-  tagText: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.uomPrimary,
-    fontWeight: '600',
-  },
-  actionContainer: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xl,
-  },
-  enrollButton: {
-    height: 52,
+  markDoneText: {
+    fontSize: 11,
+    color: COLORS.gray,
+    fontFamily: FONTS.regular,
   },
 });
 
