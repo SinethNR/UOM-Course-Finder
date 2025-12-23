@@ -99,7 +99,7 @@ const mockCourses: Course[] = [
 // Async thunks
 export const fetchCourses = createAsyncThunk(
   'courses/fetchCourses',
-  async (filters?: CourseFilters, { rejectWithValue }) => {
+  async (filters: CourseFilters = {}, { rejectWithValue }) => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

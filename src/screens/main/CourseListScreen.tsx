@@ -38,9 +38,8 @@ const CourseListScreen: React.FC<CourseListScreenProps> = ({ navigation }) => {
   const filteredCourses = useMemo(() => {
     return filterCoursesByQuery(courses, searchQuery);
   }, [courses, searchQuery]);
-
   useEffect(() => {
-    dispatch(fetchCourses());
+    dispatch(fetchCourses({}));
   }, [dispatch]);
 
   useEffect(() => {
@@ -48,7 +47,7 @@ const CourseListScreen: React.FC<CourseListScreenProps> = ({ navigation }) => {
   }, [localSearchQuery, debouncedSearch]);
 
   const handleRefresh = () => {
-    dispatch(fetchCourses());
+    dispatch(fetchCourses({}));
   };
   const handleCoursePress = (course: Course) => {
     navigation.navigate('CourseDetail', { course });

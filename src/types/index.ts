@@ -20,6 +20,7 @@ export interface AuthValidationErrors {
 // Course types
 export interface Course {
   id: string;
+  code?: string;
   title: string;
   description: string;
   instructor: string;
@@ -54,6 +55,7 @@ export type MainTabParamList = {
 };
 
 export type AuthStackParamList = {
+  Landing: undefined;
   Login: undefined;
   Register: undefined;
 };

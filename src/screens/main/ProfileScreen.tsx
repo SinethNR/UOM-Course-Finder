@@ -103,9 +103,8 @@ const ProfileScreen: React.FC = () => {
     department: 'Computer Science & Engineering',
     year: '4th Year',
     semester: 'Semester 1, 2024/2025',
-    gpa: '3.85',
-    completedCourses: 45,
-    totalCredits: 135,
+    gpa: '3.85',    completedCourses: 52,
+    totalCredits: 173,
     profilePicture: null,
     joinDate: 'September 2021',
     lastAccess: '2 minutes ago',
@@ -113,14 +112,20 @@ const ProfileScreen: React.FC = () => {
     city: 'Moratuwa',
     phone: '+94 77 123 4567',
     interests: ['Machine Learning', 'Web Development', 'Data Science', 'Mobile Development', 'UI/UX Design'],
-    skills: ['React Native', 'Python', 'JavaScript', 'Java', 'SQL', 'TypeScript', 'Node.js', 'MongoDB'],
-    coursework: [
+    skills: ['React Native', 'Python', 'JavaScript', 'Java', 'SQL', 'TypeScript', 'Node.js', 'MongoDB'],    coursework: [
       { code: 'CS3042', name: 'Database Systems', grade: 'A', credits: 3, semester: 'Sem 1, 2024', progress: 95 },
       { code: 'CS3052', name: 'Software Engineering', grade: 'A-', credits: 3, semester: 'Sem 1, 2024', progress: 88 },
       { code: 'CS3712', name: 'Machine Learning', grade: 'B+', credits: 3, semester: 'Sem 2, 2023', progress: 82 },
       { code: 'CS3821', name: 'Mobile App Development', grade: 'A', credits: 3, semester: 'Sem 2, 2023', progress: 94 },
       { code: 'CS3022', name: 'Data Structures & Algorithms', grade: 'A', credits: 4, semester: 'Sem 1, 2023', progress: 92 },
       { code: 'CS3302', name: 'Computer Networks', grade: 'B+', credits: 3, semester: 'Sem 2, 2023', progress: 85 },
+      { code: 'CS3432', name: 'Operating Systems', grade: 'A-', credits: 3, semester: 'Sem 1, 2023', progress: 89 },
+      { code: 'CS3202', name: 'Computer Graphics', grade: 'B+', credits: 3, semester: 'Sem 2, 2022', progress: 78 },
+      { code: 'CS3152', name: 'Web Development', grade: 'A', credits: 3, semester: 'Sem 1, 2022', progress: 93 },
+      { code: 'CS3642', name: 'Artificial Intelligence', grade: 'A-', credits: 3, semester: 'Sem 2, 2022', progress: 87 },
+      { code: 'CS3532', name: 'Cybersecurity', grade: 'B', credits: 3, semester: 'Sem 1, 2022', progress: 75 },
+      { code: 'CS3112', name: 'Human-Computer Interaction', grade: 'A', credits: 2, semester: 'Sem 2, 2021', progress: 96 },
+      { code: 'CS3342', name: 'Distributed Systems', grade: 'B+', credits: 3, semester: 'Sem 1, 2021', progress: 83 },
     ],
     recentActivity: [
       { type: 'submission', title: 'Assignment 2 - Database Design', course: 'CS3042', time: '2 hours ago', status: 'completed' },
@@ -348,19 +353,17 @@ const ProfileScreen: React.FC = () => {
               <View style={[styles.statCard, styles.coursesCard]}>
                 <View style={styles.statIconContainer}>
                   <BookOpen stroke={COLORS.white} width={24} height={24} />
-                </View>
-                <Text style={styles.statValue}>{studentProfile.completedCourses}</Text>
+                </View>                <Text style={styles.statValue}>{studentProfile.completedCourses}</Text>
                 <Text style={styles.statLabel}>Courses Completed</Text>
-                <Text style={styles.progressText}>90% of degree</Text>
+                <Text style={styles.progressText}>95% of degree</Text>
               </View>
               
               <View style={[styles.statCard, styles.creditsCard]}>
                 <View style={styles.statIconContainer}>
                   <Award stroke={COLORS.white} width={24} height={24} />
-                </View>
-                <Text style={styles.statValue}>{studentProfile.totalCredits}</Text>
+                </View>                <Text style={styles.statValue}>{studentProfile.totalCredits}</Text>
                 <Text style={styles.statLabel}>Total Credits</Text>
-                <Text style={styles.progressText}>15 credits remaining</Text>
+                <Text style={styles.progressText}>7 credits remaining</Text>
               </View>
               
               <View style={[styles.statCard, styles.favoritesCard]}>
@@ -441,12 +444,10 @@ const ProfileScreen: React.FC = () => {
                   <Text style={styles.progressValue}>{studentProfile.department}</Text>
                 </View>
               </View>
-            </View>
-
-            {/* Recent Coursework */}
+            </View>            {/* Recent Coursework */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Recent Coursework</Text>
-              {studentProfile.coursework.slice(0, 3).map((course, index) => (
+              {studentProfile.coursework.slice(0, 6).map((course, index) => (
                 <View key={index} style={styles.courseItem}>
                   <View style={styles.courseInfo}>
                     <Text style={styles.courseCode}>{course.code}</Text>
@@ -616,30 +617,78 @@ const ProfileScreen: React.FC = () => {
                 <Text style={styles.sectionTitle}>Course Performance</Text>
                 <PieChart stroke={COLORS.uomPrimary} width={20} height={20} />
               </View>
-              {studentProfile.coursework.map((course, index) => (
-                <View key={index} style={styles.enhancedCourseItem}>
-                  <View style={styles.courseInfo}>
-                    <View style={styles.courseHeader}>
-                      <Text style={styles.courseCode}>{course.code}</Text>
-                      <View style={[styles.gradeContainer, { backgroundColor: course.grade.startsWith('A') ? COLORS.success + '15' : course.grade.startsWith('B') ? COLORS.warning + '15' : COLORS.error + '15' }]}>
-                        <Text style={[styles.grade, { color: course.grade.startsWith('A') ? COLORS.success : course.grade.startsWith('B') ? COLORS.warning : COLORS.error }]}>
-                          {course.grade}
+              
+              {/* Course Grid Layout - 4 rows × 3 columns */}
+              <View style={styles.courseGrid}>
+                {studentProfile.coursework.map((course, index) => (
+                  <View key={index} style={styles.courseGridItem}>
+                    <View style={styles.courseCardContainer}>
+                      {/* Course Header */}
+                      <View style={styles.courseCardHeader}>
+                        <Text style={styles.courseCodeGrid}>{course.code}</Text>
+                        <View style={[
+                          styles.gradeContainerGrid, 
+                          { 
+                            backgroundColor: course.grade.startsWith('A') 
+                              ? COLORS.success + '20' 
+                              : course.grade.startsWith('B') 
+                              ? COLORS.warning + '20' 
+                              : COLORS.error + '20' 
+                          }
+                        ]}>
+                          <Text style={[
+                            styles.gradeGrid, 
+                            { 
+                              color: course.grade.startsWith('A') 
+                                ? COLORS.success 
+                                : course.grade.startsWith('B') 
+                                ? COLORS.warning 
+                                : COLORS.error 
+                            }
+                          ]}>
+                            {course.grade}
+                          </Text>
+                        </View>
+                      </View>
+                      
+                      {/* Course Name */}
+                      <Text style={styles.courseNameGrid} numberOfLines={2}>
+                        {course.name}
+                      </Text>
+                      
+                      {/* Course Details */}
+                      <View style={styles.courseDetailsGrid}>
+                        <Text style={styles.courseSemesterGrid}>
+                          {course.semester.replace('Sem', 'S')}
+                        </Text>
+                        <Text style={styles.creditsGrid}>
+                          {course.credits} CR
+                        </Text>
+                      </View>
+                      
+                      {/* Progress Bar */}
+                      <View style={styles.progressBarContainerGrid}>
+                        <View style={styles.progressBarGrid}>
+                          <View style={[
+                            styles.progressFillGrid, 
+                            { 
+                              width: `${course.progress}%`, 
+                              backgroundColor: course.grade.startsWith('A') 
+                                ? COLORS.success 
+                                : course.grade.startsWith('B') 
+                                ? COLORS.warning 
+                                : COLORS.error 
+                            }
+                          ]} />
+                        </View>
+                        <Text style={styles.progressPercentageGrid}>
+                          {course.progress}%
                         </Text>
                       </View>
                     </View>
-                    <Text style={styles.courseName}>{course.name}</Text>
-                    <Text style={styles.courseSemester}>{course.semester} • {course.credits} Credits</Text>
-                    
-                    {/* Progress Bar */}
-                    <View style={styles.progressBarContainer}>
-                      <View style={styles.progressBar}>
-                        <View style={[styles.progressFill, { width: `${course.progress}%`, backgroundColor: course.grade.startsWith('A') ? COLORS.success : course.grade.startsWith('B') ? COLORS.warning : COLORS.error }]} />
-                      </View>
-                      <Text style={styles.progressPercentage}>{course.progress}%</Text>
-                    </View>
                   </View>
-                </View>
-              ))}
+                ))}
+              </View>
             </View>
           </View>
         )}
@@ -1242,7 +1291,6 @@ const styles = StyleSheet.create({
     minWidth: 32,
     textAlign: 'right',
   },
-
   // Enhanced Course Styles
   enhancedCourseItem: {
     backgroundColor: COLORS.extraLightGray,
@@ -1255,6 +1303,109 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.xs,
+  },
+  
+  // Course Grid Styles (4 rows × 3 columns)
+  courseGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: SPACING.sm,
+  },
+  courseGridItem: {
+    width: '31%', // ~33.33% minus gap for 3 columns
+    aspectRatio: 1.2, // Slight rectangle for better content fit
+    marginBottom: SPACING.sm,
+  },
+  courseCardContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.sm,
+    height: '100%',
+    justifyContent: 'space-between',
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+      default: {
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+      },
+    }),
+  },
+  courseCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
+  courseCodeGrid: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: COLORS.uomPrimary,
+    letterSpacing: 0.5,
+  },
+  gradeContainerGrid: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: BORDER_RADIUS.sm,
+    minWidth: 28,
+    alignItems: 'center',
+  },
+  gradeGrid: {
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  courseNameGrid: {
+    fontSize: 11,
+    color: COLORS.text,
+    fontWeight: '500',
+    lineHeight: 14,
+    textAlign: 'center',
+    marginBottom: SPACING.xs,
+    minHeight: 28, // Ensure consistent height for 2 lines
+  },
+  courseDetailsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
+  courseSemesterGrid: {
+    fontSize: 9,
+    color: COLORS.gray,
+    fontWeight: '500',
+  },
+  creditsGrid: {
+    fontSize: 9,
+    color: COLORS.uomSecondary,
+    fontWeight: '600',
+  },
+  progressBarContainerGrid: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  progressBarGrid: {
+    width: '100%',
+    height: 4,
+    backgroundColor: COLORS.extraLightGray,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFillGrid: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  progressPercentageGrid: {
+    fontSize: 8,
+    fontWeight: '600',
+    color: COLORS.gray,
+    marginTop: 2,
   },
   
   // Enhanced Detail Styles

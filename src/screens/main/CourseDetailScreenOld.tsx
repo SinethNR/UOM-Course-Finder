@@ -19,14 +19,13 @@ import { formatTime, getEnrollmentStatus } from '../../utils/helpers';
 type CourseDetailScreenProps = NativeStackScreenProps<HomeStackParamList, 'CourseDetail'>;
 
 const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
-  const { courseId } = route.params;
+  const { course } = route.params;
   const { courses } = useAppSelector(state => state.courses);
   const { isFavorite, toggleCourseFavorite } = useFavorites();
+  // Use the passed course or find it by ID as fallback
+  const courseData = course;
 
-  // Find the course by ID
-  const course = courses.find(c => c.id === courseId);
-
-  if (!course) {
+  if (!courseData) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Course not found</Text>
@@ -36,11 +35,10 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
 
   const enrollmentStatus = getEnrollmentStatus(course);
   const canEnroll = enrollmentStatus.status !== 'Full';
-
   const handleEnroll = () => {
     Alert.alert(
       'Enroll in Course',
-      `Are you sure you want to enroll in ${course.title}?`,
+      `Are you sure you want to enroll in ${courseData.title}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { 
@@ -58,37 +56,35 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>{course.title}</Text>
+        <View style={styles.titleContainer}>          <Text style={styles.title}>{courseData.title}</Text>
           <TouchableOpacity
             style={styles.favoriteButton}
             onPress={handleToggleFavorite}
             activeOpacity={0.7}
           >
             <Heart
-              stroke={isFavorite(course.id) ? COLORS.error : COLORS.gray}
-              fill={isFavorite(course.id) ? COLORS.error : 'transparent'}
+              stroke={isFavorite(courseData.id) ? COLORS.error : COLORS.gray}
+              fill={isFavorite(courseData.id) ? COLORS.error : 'transparent'}
               width={28}
               height={28}
             />
           </TouchableOpacity>
         </View>
         
-        <Text style={styles.instructor}>Instructor: {course.instructor}</Text>
-        <Text style={styles.department}>{course.department}</Text>
+        <Text style={styles.instructor}>Instructor: {courseData.instructor}</Text>
+        <Text style={styles.department}>{courseData.department}</Text>
       </View>
 
       <View style={styles.quickInfo}>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.credits}</Text>
+        <View style={styles.infoCard}>          <Text style={styles.infoCardValue}>{courseData.credits}</Text>
           <Text style={styles.infoCardLabel}>Credits</Text>
         </View>
         <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.semester}</Text>
+          <Text style={styles.infoCardValue}>{courseData.semester}</Text>
           <Text style={styles.infoCardLabel}>Semester</Text>
         </View>
         <View style={styles.infoCard}>
-          <Text style={styles.infoCardValue}>{course.year}</Text>
+          <Text style={styles.infoCardValue}>{courseData.year}</Text>
           <Text style={styles.infoCardLabel}>Year</Text>
         </View>
       </View>
@@ -97,9 +93,8 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
         <Text style={styles.sectionTitle}>Enrollment Status</Text>
         <View style={styles.enrollmentContainer}>
           <View style={styles.enrollmentInfo}>
-            <Users stroke={COLORS.gray} width={20} height={20} />
-            <Text style={styles.enrollmentText}>
-              {course.enrollmentCount} of {course.maxCapacity} students enrolled
+            <Users stroke={COLORS.gray} width={20} height={20} />            <Text style={styles.enrollmentText}>
+              {courseData.enrollmentCount} of {courseData.maxCapacity} students enrolled
             </Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: enrollmentStatus.color + '20' }]}>
@@ -125,13 +120,12 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{course.description}</Text>
+        <Text style={styles.sectionTitle}>Description</Text>        <Text style={styles.description}>{courseData.description}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Schedule</Text>
-        {course.schedule.map((schedule, index) => (
+        {courseData.schedule.map((schedule, index) => (
           <View key={index} style={styles.scheduleItem}>
             <View style={styles.scheduleHeader}>
               <Calendar stroke={COLORS.uomPrimary} width={20} height={20} />
@@ -154,9 +148,8 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route }) => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Course Tags</Text>
-        <View style={styles.tagsContainer}>
-          {course.tags.map((tag, index) => (
+        <Text style={styles.sectionTitle}>Course Tags</Text>        <View style={styles.tagsContainer}>
+          {courseData.tags.map((tag, index) => (
             <View key={index} style={styles.tag}>
               <Text style={styles.tagText}>{tag}</Text>
             </View>

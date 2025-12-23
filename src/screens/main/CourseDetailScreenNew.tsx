@@ -31,11 +31,10 @@ interface CourseSectionItem {
 }
 
 const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route, navigation }) => {
-  const { courseId } = route.params;
+  const { course } = route.params;
   const { courses } = useAppSelector(state => state.courses);
-
-  // Find the course by ID
-  const course = courses.find(c => c.id === courseId);
+  // Use the passed course or find it by ID as fallback
+  const courseData = course;
 
   // Mock course sections data
   const [sections, setSections] = useState<CourseSection[]>([
@@ -185,9 +184,8 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({ route, navigati
   return (
     <View style={styles.container}>
       {/* Course Header */}
-      <View style={styles.courseHeader}>
-        <Text style={styles.courseCode}>
-          {course.id.toUpperCase()}-S1-IN{course.semester}11 - {course.title}
+      <View style={styles.courseHeader}>        <Text style={styles.courseCode}>
+          {courseData.id.toUpperCase()}-S1-IN{courseData.semester}11 - {courseData.title}
         </Text>
       </View>
 
