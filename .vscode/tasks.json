@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"args": [
+				"run",
+				"android"
+			],
+			"command": "npm",
+			"group": "build",
+			"isBackground": true,
+			"label": "Build and Run Android",
+			"problemMatcher": [],
+			"type": "shell"
+		}
+	]
+}
